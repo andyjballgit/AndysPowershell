@@ -8,11 +8,14 @@
 
   Prequisites - currently requires an Azure Subscription AND Azure Powershell cmdlets installed
 
-  v1.0  Andy Ball 26/11/2016 Base Version
+  v1.00 Andy Ball 26/11/2016 Base Version
+  v1.01 Andy Ball 26/11/2016 Added ConcurrentTaskCount for Blob download
+  v1.02 Andy Ball 26/11/2016 Added GetURIsOnly param 
+
   Backlog 
   --------
-  - Remove Azure Sub / Azure Powershell dependency by using Netclient cmdlet
-  - Flatten Local Directory Structure. 
+  - Remove Azure Sub / Azure Powershell dependency by using .Net web client cmdlet
+  - Flatten Local Directory Structure so doesnt reflect deep path of Azure Blobs 
   
 
  .Parameter DestinationDirectory
@@ -29,7 +32,14 @@
 
  .Parameter GetFirstXBlobs 
   Only downloads the number specified , smallest first. This param generally used for testing
+  
+  .Parameter ConcurrentTaskCount 
+   For Blob Copy. Default = 32 
+   #https://github.com/Azure/azure-powershell/wiki/Microsoft-Azure-Storage-Cmdlets
+   # By default, when you upload files from local computer to Windows Azure Storage, this cmdlet will initiate network calls up to eight times the number of cores this local computer had to execute concurrent tasks
 
+   .Parameter GetURIsOnly
+   If true just returns the full URI of each matching file. Default is false 
 
  .Example
    Basic usage , gets all documents 
@@ -38,6 +48,10 @@
  .Example
    Only downloads the 10 smallest files. Used for testing
    Get-AzureDocumentation -DestDirectory "C:\AzureDocs" -FirstXBlobs 10 
+
+ .Example 
+  Just returns the URIs for all matching files
+  Get-AzureDocumentation -DestDirectory "C:\AzureDocs" -GetURIsOnly $true 
 #>
 
 Function Get-AzureDocumentation 
@@ -46,10 +60,17 @@ Function Get-AzureDocumentation
     (
         [Parameter(Mandatory = $true , Position = 0)] [string] $DestDirectory, 
         [Parameter(Mandatory = $false , Position = 1)] [string] $StorageAccountName = "opbuildstorageprod", 
-        [Parameter(Mandatory = $false , Position = 1)] [string] $ContainerName = "output-pdf-files", 
-        [Parameter(Mandatory = $false , Position = 2)] [string] $ContainerPathWildCard = "en-us/Azure.azure-documents/live/*",
-        [Parameter(Mandatory = $false , Position = 2)] [int] $GetFirstXBlobs = 0  
+        [Parameter(Mandatory = $false , Position = 2)] [string] $ContainerName = "output-pdf-files", 
+        [Parameter(Mandatory = $false , Position = 3)] [string] $ContainerPathWildCard = "en-us/Azure.azure-documents/live/*",
+        [Parameter(Mandatory = $false , Position = 4)] [int] $GetFirstXBlobs = 0  , 
+        [Parameter(Mandatory = $false , Position = 5)] [int] $ConcurrentTaskCount = 32, 
+        [Parameter(Mandatory = $false , Position = 6)] [boolean] $GetURIsOnly = $false 
+          
+
     )
+
+    # Store the Full URL in here in case we want to download directly / Without Azure Sub / 
+    $FileURIs = @()
 
     # So we dont wast time checking for 
     $NewDirCreated = $False 
@@ -97,77 +118,92 @@ Function Get-AzureDocumentation
     $StartTime = Get-Date 
 
     # Roll through and download 
-    Write-Host "Starting copy of $BlobCount Files, total size $BlobsTotalMbytes MBytes"
+    Write-Host "Processing $BlobCount Files, total size $BlobsTotalMbytes MBytes"
     ForEach ($Blob in $BlobsAzure)
         {
-            $ExistingLocalFile = $null
-            $BlobShortName = (Split-Path $Blob.Name -Leaf)
-            $CopyFile = $false 
-            $FoundMessage = $null 
+            #Add to Results
+            $FileURIs += "https://" + $StorageAccountName +  "/" + $ContainerName + "/" + $Blob.Name 
 
-            # ie no need to check if exists ! 
-            If ($NewDirCreated)
-                {
-                    $CopyFile = $true 
+
+            If ($GetURIsOnly -eq $false)
+            {
+                $ExistingLocalFile = $null
+                $BlobShortName = (Split-Path $Blob.Name -Leaf)
+                $CopyFile = $false 
+                $FoundMessage = $null 
+
+                # ie no need to check if exists ! 
+                If ($NewDirCreated)
+                    {
+                        $CopyFile = $true 
                     
-                }
-            Else
-                {
-                    $LocalDir = $DestDirectory + "\" + (Split-Path $Blob.Name -Parent) 
+                    }
+                Else
+                    {
+                        $LocalDir = $DestDirectory + "\" + (Split-Path $Blob.Name -Parent) 
         
-                    Write-Host ("`tChecking if " + $BlobShortName + " exists in $LocalDir")
-                    $ExistingLocalFile = $ExistingLocalFiles | Where {$_.Name -eq $BlobShortName -and $_.DirectoryName -eq $LocalDir}
-                    If ($ExistingLocalFile -ne $null)
-                        {
+                        Write-Host ("`tChecking if " + $BlobShortName + " exists in $LocalDir")
+                        $ExistingLocalFile = $ExistingLocalFiles | Where {$_.Name -eq $BlobShortName -and $_.DirectoryName -eq $LocalDir}
+                        If ($ExistingLocalFile -ne $null)
+                            {
 
-                            $ExistingFileLastModified = $ExistingLocalFile.LastWriteTime
-                            $BlobLastModified = $Blob.LastModified.DateTime 
-                            $FoundMessage = "`tExisting Local File Dated $ExistingFileLastModified found, Current Blob Date = $BlobLastModified"
+                                $ExistingFileLastModified = $ExistingLocalFile.LastWriteTime
+                                $BlobLastModified = $Blob.LastModified.DateTime 
+                                $FoundMessage = "`tExisting Local File Dated $ExistingFileLastModified found, Current Blob Date = $BlobLastModified"
 
-                            If ($BlobLastModified -ge $ExistingFileLastModified )
-                                {
-                                    $CopyFile = $true
-                                    $FoundMessage += " so will overwrite."
-                                }
-                            Else
-                                {
-                                    $CopyFile = $false 
-                                    $FoundMessage += " so skipping."
-                                }
+                                If ($BlobLastModified -ge $ExistingFileLastModified )
+                                    {
+                                        $CopyFile = $true
+                                        $FoundMessage += " so will overwrite."
+                                    }
+                                Else
+                                    {
+                                        $CopyFile = $false 
+                                        $FoundMessage += " so skipping."
+                                    }
 
-                            Write-Host $FoundMessage
-                        }
+                                Write-Host $FoundMessage
+                            }
 
 
-                    Else
-                        {
-                            Write-Host "`tExisting local file not found" 
-                            $CopyFile = $true 
-                        }
+                        Else
+                            {
+                                Write-Host "`tExisting local file not found" 
+                                $CopyFile = $true 
+                            }
                         
-                }
+                    }
 
-            $BlobSizeMB = [math]::round($Blob.Length / 1024 / 1024, 2)
-            If ($CopyFile)
-                {
-                    Write-Host ("`tStarting copy of Blob = " + $BlobShortName + ", Size = " + $BlobSizeMB +  " Mbytes @ " + (Get-Date) + " ($CurrentBlobNumber of $BlobCount)") -ForegroundColor Green 
-                    $blobcontent = Get-AzureStorageBlobContent -Blob $Blob.Name -Destination $DestDirectory -Force -Container $ContainerName -Context $StorageContext
-                    $FilesDownloaded++
-                    $FileSizeDownloaded += $Blob.Length
-                }
+                $BlobSizeMB = [math]::round($Blob.Length / 1024 / 1024, 2)
+                If ($CopyFile)
+                    {
+                        Write-Host ("`tStarting copy of Blob = " + $BlobShortName + ", Size = " + $BlobSizeMB +  " Mbytes @ " + (Get-Date) + " ($CurrentBlobNumber of $BlobCount)") -ForegroundColor Green 
+                        $blobcontent = Get-AzureStorageBlobContent -Blob $Blob.Name -Destination $DestDirectory -Force -Container $ContainerName -Context $StorageContext -ConcurrentTaskCount $ConcurrentTaskCount
+                        $FilesDownloaded++
+                        $FileSizeDownloaded += $Blob.Length
+                    }
+                Write-Host ""
+            }
+
             $CurrentBlobNumber ++
-            
-            Write-Host ""
+     
         }
 
     # Work out how long
-    $EndTime = Get-Date 
-    $TimeTakenSecs = [math]::round((New-TimeSpan -Start $StartTime -End $EndTime).TotalSeconds, 0)
-    $MbytesASec = [math]::round($FileSizeDownloaded / 1024 / 1024 / $TimeTakenSecs , 2)
-
+    If ($GetURIsOnly -eq $false)
+    {
+        $EndTime = Get-Date 
+        $TimeTakenSecs = [math]::round((New-TimeSpan -Start $StartTime -End $EndTime).TotalSeconds, 0)
+        $MbytesASec = [math]::round($FileSizeDownloaded / 1024 / 1024 / $TimeTakenSecs , 2)
+        Write-Host "$FilesDownloaded file(s) total size = $FilesDownloaded Mbytes downloaded to $DestDirectory in $TimeTakenSecs secs at $MbytesASec Mbytes/sec" 
+    }
     
     Write-Host ""
-    Write-Host "$FilesDownloaded file(s) total size = $FilesDownloaded Mbytes downloaded to $DestDirectory in $TimeTakenSecs secs at $MbytesASec Mbytes/sec" 
+    # Finally return all the URI's   
+    $FileURIs 
 }
 
-# Get-AzureDocumentation -DestDirectory "C:\Training\AzureDocs"
+
+$URIOutputFileName = "C:\workarea\repos\AndysPowershell\AzureDocsList.txt"
+$ret = Get-AzureDocumentation -DestDirectory "C:\Training\AzureDocs2" -ConcurrentTaskCount 48
+
