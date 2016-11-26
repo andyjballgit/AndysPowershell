@@ -6,7 +6,7 @@
   Uses Azure Storage Cmdlets to download all Azure PDF based documentation locally.
   Checks to see if the up to date local copy exists and thus only downloads new / updated files.
 
-  Prequisites - currently requires an Azure Subscription AND Azure Powershell cmdlets installed.
+  Prequisites - currently requires Azure Powershell cmdlets installed. Note don't require Azure Subscription as anonymous access. 
 
   Change Log
   ----------
@@ -16,10 +16,9 @@
 
   Backlog 
   --------
-  - Remove Azure Sub / Azure Powershell dependency by using .Net web client cmdlet
+  - Remove Powershell dependency by using say Invoke-WebRequest
   - Flatten Local Directory Structure so doesnt reflect deep path of Azure Blobs 
   
-
  .Parameter DestinationDirectory
   Root Local Directory where files are to be downloaded i.e C:\AzureDocs
 
@@ -206,5 +205,5 @@ Function Get-AzureDocumentation
 }
 
 
-$ret = Get-AzureDocumentation -DestDirectory "C:\Training\AzureDocs2" -ConcurrentTaskCount 48
+# $ret = Get-AzureDocumentation -DestDirectory "C:\Training\AzureDocs2" -ConcurrentTaskCount 32
 
