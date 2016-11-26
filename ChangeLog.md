@@ -2,7 +2,8 @@
 * Get-AzureDocumentation
 	* Added Funcionality to allow output / read to / from JSON File 
 * Set-AzureDocumentation
-	* New Function to push list of Azure Documentation files in JSON format 
+	* New Function to push list of Azure Documentation files in JSON format
+
 ## 26.11.2016 Version 1.02 
 * Get-AzureDocumentation 
 	* Added GetURIsOnly param 
