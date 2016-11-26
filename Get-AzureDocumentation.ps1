@@ -3,11 +3,13 @@
   Downloads Azure Documentation to Local Drive
 
  .Description
-  Uses Azure Storage Cmdlets to download all Azure PDF based documentation locally 
-  Checks to see if the up to date local copy exists and thus only downloads new / updated files 
+  Uses Azure Storage Cmdlets to download all Azure PDF based documentation locally.
+  Checks to see if the up to date local copy exists and thus only downloads new / updated files.
 
-  Prequisites - currently requires an Azure Subscription AND Azure Powershell cmdlets installed
+  Prequisites - currently requires an Azure Subscription AND Azure Powershell cmdlets installed.
 
+  Change Log
+  ----------
   v1.00 Andy Ball 26/11/2016 Base Version
   v1.01 Andy Ball 26/11/2016 Added ConcurrentTaskCount for Blob download
   v1.02 Andy Ball 26/11/2016 Added GetURIsOnly param 
@@ -204,6 +206,5 @@ Function Get-AzureDocumentation
 }
 
 
-$URIOutputFileName = "C:\workarea\repos\AndysPowershell\AzureDocsList.txt"
 $ret = Get-AzureDocumentation -DestDirectory "C:\Training\AzureDocs2" -ConcurrentTaskCount 48
 
