@@ -277,8 +277,9 @@ Function Get-AzureDocumentation
     {
         $EndTime = Get-Date 
         $TimeTakenSecs = [math]::round((New-TimeSpan -Start $StartTime -End $EndTime).TotalSeconds, 0)
-        $MbytesASec = [math]::round($FileSizeDownloaded / 1024 / 1024 / $TimeTakenSecs , 2)
-        Write-Host "$FilesDownloaded file(s) total size = $FilesDownloaded Mbytes downloaded to $DestDirectory in $TimeTakenSecs secs at $MbytesASec Mbytes/sec" 
+        $FileSizeDownloadedMB = [math]::round($FileSizeDownloaded / 1024 / 1024 , 2)
+        $MbytesASec = [math]::round($FileSizeDownloadedMB / $TimeTakenSecs , 2)
+        Write-Host "$FilesDownloaded file(s) , total size = $FileSizeDownloadedMB Mbytes downloaded to $DestDirectory in $TimeTakenSecs secs at $MbytesASec Mbytes/sec" 
     }
     
     Write-Host ""
