@@ -3,7 +3,7 @@
 
 ## 26.11.2016 Version 1.03
 * Get-AzureDocumentation
-	* Added Funcionality to allow output / read to / from JSON File 
+	* Added Functionality to allow output / read to / from JSON File so can be used with Azure Cmdlets
 * Set-AzureDocumentation
 	* New Function to push list of Azure Documentation files in JSON format
 

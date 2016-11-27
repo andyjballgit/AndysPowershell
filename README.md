@@ -3,7 +3,7 @@ Utility type Powershell scripts
 
 * Get-AzureDocumentation
 	
-  * Downloads Azure Documentation in PDF format to local drive
+  * Bulk Downloads Azure Documentation in PDF format to local drive
 
 * Set-AzureDocURIs
 
