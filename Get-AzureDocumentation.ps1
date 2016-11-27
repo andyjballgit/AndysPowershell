@@ -13,6 +13,7 @@
   v1.00 Andy Ball 26/11/2016 Base Version
   v1.01 Andy Ball 26/11/2016 Added ConcurrentTaskCount for Blob download
   v1.02 Andy Ball 26/11/2016 Added GetURIsOnly param 
+  v1.03 Andy Ball 26/11/2016 Added Funcionality to allow output / read to / from JSON File
 
   Backlog 
   --------

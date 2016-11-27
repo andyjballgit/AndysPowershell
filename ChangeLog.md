@@ -1,3 +1,6 @@
+## 27.11.2016 Version 1.04
+* Add WhappenMyAzureVM function
+
 ## 26.11.2016 Version 1.03
 * Get-AzureDocumentation
 	* Added Funcionality to allow output / read to / from JSON File 
