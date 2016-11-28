@@ -1,3 +1,7 @@
+## 28.11.2016 Version 1.05 
+* Update Functions with "Requires -Modules x" statements
+* Change WhappenMyAzureVM with option to allow search through all subscriptions 
+
 ## 27.11.2016 Version 1.04
 * Add WhappenMyAzureVM function
 
