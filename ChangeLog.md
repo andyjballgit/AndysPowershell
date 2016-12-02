@@ -1,3 +1,5 @@
+## 02.12.2015 version 1.06
+* Fix bug in WhappenMyAzureVM when VM Found and -CheckAllSubscriptions false
 ## 28.11.2016 Version 1.05 
 * Update Functions with "Requires -Modules x" statements
 * Change WhappenMyAzureVM with option to allow search through all subscriptions 

@@ -12,6 +12,7 @@
   v1.00 Andy Ball 23\11\2016 Base Version 
   v1.01 Andy Ball 27\11\2016 If VM Name not found , output a list of all VMs
   v1.02 Andy Ball 28\11\2016 Add CheckAllSubscription
+  v1.03 Andy Ball 02\12\2016 Fix bug when VM Found and -CheckAllSubscriptions false
 
   Backlog 
   --------
@@ -92,7 +93,10 @@ Function WhappenMyAzureVM
             }
 
     } #VM is null
-
+    Else
+        {
+            $VMFound = $true 
+        }
     # Finally load the web page if found .. 
     If ($VMFound)
         {
@@ -108,6 +112,6 @@ Function WhappenMyAzureVM
         }
 }
 
-WhappenMyAzureVM -VMName "LBE-SV-IIST-001" -CheckAllSubscriptions $false 
+WhappenMyAzureVM -VMName "myserver" -CheckAllSubscriptions $false 
 
-# -ResourceGroupName "MyResourceGroupName"
+
