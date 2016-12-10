@@ -1,5 +1,5 @@
 ## 10.12.2016 Version 1.07
-* Add Get-GitHubLatestRelease
+* Added Get-GitHubLatestRelease
 ## 02.12.2015 version 1.06
 * Fix bug in WhappenMyAzureVM when VM Found and -CheckAllSubscriptions false
 ## 28.11.2016 Version 1.05 
