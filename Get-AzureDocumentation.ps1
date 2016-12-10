@@ -14,7 +14,8 @@
   v1.00 Andy Ball 26/11/2016 Base Version
   v1.01 Andy Ball 26/11/2016 Added ConcurrentTaskCount for Blob download
   v1.02 Andy Ball 26/11/2016 Added GetURIsOnly param 
-  v1.03 Andy Ball 26/11/2016 Added Funcionality to allow output / read to / from JSON File so dont need Azure cmdlets installed
+  v1.03 Andy Ball 26/11/2016 Added Funcionality to allow output / read to / from JSON File
+  v1.04 Andy Ball 27/11/2016 Added #Requires -Modules Azure.Storage - to top of Function
 
   Backlog 
   --------
@@ -100,7 +101,9 @@ Function Get-AzureDocumentation
 
     )
 
-    $ErrorActionPreference = "Inquire" 
+    
+    #Requires -Modules Azure.Storage
+    $ErrorActionPreference = "Stop" 
     # Store the Full URL in here in case we want to download directly / Without Azure Sub / 
     $FileURIs = @()
     $FileSummary = @()

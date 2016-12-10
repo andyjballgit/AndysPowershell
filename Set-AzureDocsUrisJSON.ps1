@@ -47,7 +47,7 @@ Function Upload-AzureDocsJSONFile
             [Parameter(Mandatory = $true, Position = 1)] [string] $LocalJSONOutputDirectory 
 
         )
-
+	#Requires -Modules AzureRM.Profile, Azure.Storage
     $ErrorActionPreference = "Stop"
     # So dont have to pass in Resource Group Name 
     $RMStorageAccount = Get-AzureRmStorageAccount | Where {$_.StorageAccountName -eq $StorageAccountName}

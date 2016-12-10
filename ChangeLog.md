@@ -1,6 +1,3 @@
-## 10.12.2016 Version 1.04
-* Add Get-GitHubLatestRelease
-
 ## 27.11.2016 Version 1.04
 * Add WhappenMyAzureVM function
 
