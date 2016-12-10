@@ -1,6 +1,6 @@
 ﻿<# 
  .Synopsis
-  Parses a Github / Markdown ChangeLog file and extracts the details between the 2 ## lines 
+  Parses a Github / Markdown ChangeLog file and extracts the details between the 2 ## lines
 
  .Description
   
