@@ -6,19 +6,20 @@
   Uses Azure Storage Cmdlets to download all Azure PDF based documentation locally.
   Checks to see if the up to date local copy exists and thus only downloads new / updated files.
 
-  Prequisites - currently requires Azure Powershell cmdlets installed. Note don't require Azure Subscription as anonymous access. 
+  Prequisites - currently requires Azure Powershell cmdlets installed. Note don't require Azure Subscription as anonymous access to blob storage.
+                Requires >= Version 3.0 of Powershell if using -DownloadSource FromJSONFile
 
   Change Log
   ----------
   v1.00 Andy Ball 26/11/2016 Base Version
   v1.01 Andy Ball 26/11/2016 Added ConcurrentTaskCount for Blob download
   v1.02 Andy Ball 26/11/2016 Added GetURIsOnly param 
-  v1.03 Andy Ball 26/11/2016 Added Funcionality to allow output / read to / from JSON File
+  v1.03 Andy Ball 26/11/2016 Added Funcionality to allow output / read to / from JSON File so dont need Azure cmdlets installed
 
   Backlog 
   --------
-  - Remove Powershell dependency by using say Invoke-WebRequest
   - Flatten Local Directory Structure so doesnt reflect deep path of Azure Blobs 
+  - TryCatch on download 
   
  .Parameter DestinationDirectory
   Root Local Directory where files are to be downloaded i.e C:\AzureDocs
@@ -296,5 +297,5 @@ Function Get-AzureDocumentation
 }
 
 
-$ret = Get-AzureDocumentation -DestDirectory "C:\Training\AzureDocs2" -ConcurrentTaskCount 32 -DownloadSource UseAzureCmdlets
+$ret = Get-AzureDocumentation -DestDirectory "C:\Training\AzureDocs" -ConcurrentTaskCount 32 -DownloadSource UseAzureCmdlets
 $ret
