@@ -4,6 +4,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{451C6997-9113-4AD2-8690-A7246178FDCC}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+		ReadMeHeader.md = ReadMeHeader.md
+	EndProjectSection
 EndProject
 Project("{F5034706-568F-408A-B7B3-4D38C6DB8A32}") = "CVPowershell", "PowerShellModuleProject1\CVPowershell.pssproj", "{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}"
 EndProject

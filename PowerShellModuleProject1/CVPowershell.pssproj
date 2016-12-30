@@ -34,17 +34,16 @@
   <ItemGroup>
     <Compile Include="ABFunctions.psd1" />
     <Compile Include="ABFunctions.psm1" />
+    <Compile Include="Helper\GenerateReadMe.ps1" />
     <Compile Include="Public\Get-AzureDocumentation.ps1" />
     <Compile Include="Public\Get-GitHubLatestRelease.ps1" />
     <Compile Include="Helper\PowershellFunctionTemplate.ps1" />
     <Compile Include="Public\Get-MarkDownFileForCmdLets.ps1" />
     <Compile Include="Public\Set-AzureDocsUrisJSON.ps1" />
     <Compile Include="Public\Get-AzureVMBootDiagnosticsScreen.ps1" />
-    <Compile Include="ReadmeHeader.md" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ChangeLog.md" />
-    <Content Include="ReadMe.md" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="Build" />
