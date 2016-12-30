@@ -50,7 +50,7 @@
 
 
 #>
-Function Get-LBEMarkDownFileForCmdLets
+Function Get-MarkDownFileForCmdLets
 {
     Param
         (
@@ -109,7 +109,7 @@ Function Get-LBEMarkDownFileForCmdLets
         
             $OutputString += $Summary + "|" + "`r`n"
             $CurrentSynopsisNum++
-            Write-Host ""
+            
         } 
 
     Write-Host "Checking for ReadMe Markdown Header FileName = $ReadMeMarkdownHeaderFileName"

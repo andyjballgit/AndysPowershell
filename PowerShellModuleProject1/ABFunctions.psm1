@@ -24,5 +24,5 @@
     # Export Public functions ($Public.BaseName) for WIP modules
     # Set variables visible to the module and its functions only
 
-Write-Host ("Exporting Functions....." + $Public.Basename) 
-Export-ModuleMember -Function $Public.Basename
+Write-Host ("Exporting Functions....." + $Public.Basename)
+Export-ModuleMember -Function $Public.Basename -Verbose 

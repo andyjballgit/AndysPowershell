@@ -1,13 +1,10 @@
 ﻿<# 
  .Synopsis
-  Calls Get-AzureDocumentation to get list of current Azure Powershell docs and then pushes summary to Azure Storage Account Blob
-  container in JSON format.
-
-  Idea is that people then can run Calls Get-AzureDocumentation with the -DownloadSource "FromJSONFile" to read this uploaded file to 
-  pull down Azure docs without having to have Azure Cmdlets installed. 
+  Calls Get-AzureDocumentation to get list of current Azure Powershell docs and then pushes summary to Azure Storage Account Blob container in JSON format.
 
  .Description
-  
+  Idea is that people then can run Calls Get-AzureDocumentation with the -DownloadSource "FromJSONFile" to read this uploaded file to 
+  pull down Azure docs without having to have Azure Cmdlets installed.   
 
   Prequisites - Depends on Get-AzureDocmentation enumerate list of Azure docs and Post in JSON format 
                 Requires Azure Subscription 
@@ -28,17 +25,18 @@
   Azure Resource Manager Account Name where you want to push JSON file
 
  .Parameter ContainerName
-  Blob Storage Container where you want to push JSON file 
+  Blob Storage Container where you want to push JSON file
 
- .LocalJSONOutputDirectory
+ .Parameter LocalJSONOutputDirectory
   Local Directory to temporarily store the JSON outputted by Get-AzureDocumentation before uploading to blob storage 
  
  .Example
+  Outputs
   Upload-AzureDocsJSONFile -LocalJSONOutputDirectory "C:\Training\AzureDocs" -StorageAccountName "cloudviewpubliclrsne" -ContainerName "misc" 
 
 
 #>
-Function Upload-AzureDocsJSONFile 
+Function Set-AzureDocsUrisJSON
 {
     Param
         (
