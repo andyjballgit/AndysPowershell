@@ -41,11 +41,11 @@
   
  .Example
  Outputs to default filename which is <ParentDirectory>\ReadMe.md
- Get-LBEMarkDownFileForCmdLets -CmdletWildCard "*LBE*" -Verbose
+ Get-MarkDownFileForCmdLets -Module ABFunctions -Verbose
  
  .Example
- Named file and anything that has standard LBE naming - ie <Verb>-LBE<Whatitdoes>
- Get-LBEMarkDownFileForCmdLets -CmdletWildCard "*-LBE*" -OutputFileName "c:\temp\MyMarkdown.md" -Verbose
+ Named file and anything that has MySuffix  - ie <Verb>-MySuffix<Whatitdoes>
+ Get-MarkDownFileForCmdLets -CmdletWildCard "*-Mysuffux*" -OutputFileName "c:\temp\MyMarkdown.md" -Verbose
 
 
 

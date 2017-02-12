@@ -1,3 +1,6 @@
+## 12.02.2017 Version 1.08
+* Added Get-CVAzureVMBackupStatus
+
 ## 10.12.2016 Version 1.07
 * Added Get-GitHubLatestRelease
 

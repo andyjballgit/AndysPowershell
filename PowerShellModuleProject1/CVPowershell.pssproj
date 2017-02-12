@@ -36,6 +36,7 @@
     <Compile Include="ABFunctions.psm1" />
     <Compile Include="Helper\GenerateReadMe.ps1" />
     <Compile Include="Public\Get-AzureDocumentation.ps1" />
+    <Compile Include="Public\Get-CVAzureVMBackupStatus.ps1" />
     <Compile Include="Public\Get-GitHubLatestRelease.ps1" />
     <Compile Include="Helper\PowershellFunctionTemplate.ps1" />
     <Compile Include="Public\Get-MarkDownFileForCmdLets.ps1" />
