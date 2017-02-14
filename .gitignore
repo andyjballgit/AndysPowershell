@@ -1,0 +1,5 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/PowerShellModuleProject1/Public/Get-CVAzureVMBackupStatus.txt
