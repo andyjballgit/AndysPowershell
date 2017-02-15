@@ -16,16 +16,17 @@
 
   Limitations and Known Issues
   ----------------------------
-  See Backlog ! 
+  Assumes a VM is not found if doesn't find in Vaults - but might not be a valid VM Name for Subscription
 
   Backlog 
   --------
-  - Show VMs not found in the output
   - Show running backups
     
   Change Log
   ----------
   v1.00 Andy Ball 11/02/2017 Base Version
+  v1.01 Andy Ball 14/02/2017 Add non-found VMs to resultset
+                             Fix bug where was returning Resource Group for the VMName in output
   
  .Parameter VMNames
  1 or more VMs in a string array to query/run backups for . If blank will do the whole subscription
@@ -144,7 +145,7 @@ Function Get-CVAzureVMBackupStatus
 
             ForEach ($Container in $MatchingVMContainers)
                 {
-                    $ContainerName = $Container.Name.Split(";")[1]
+                    $ContainerName = $Container.Name.Split(";")[2]
                     Write-Host "`t`tProcessing $ContainerName ($CurrentVMNumber of $MatchingVMsCount)"
                     $ProtectionState = $null 
                     $LastBackupStatus = $null 
@@ -200,12 +201,21 @@ Function Get-CVAzureVMBackupStatus
                     
         }
 
-    # finally return, removing the dummy record
-    $VMsFound | Where {$_.VMName -ne "Dummy"}
+    
+    
+    # create records for VMs not found    
+    $VMsNotFound = $VMNames | WHere {$_ -notin $VMsFound.VMName} | Select @{Name = "VMName" ; Expression = {$_}}, 
+                                                                          @{Name = "VaultName" ; Expression = {"N\A"}},
+                                                                          @{Name = "ProtectionState" ; Expression = {"NOT PROTECTED"}}, 
+                                                                          @{Name = "LastBackupStatus" ; Expression = {"N\A"}},
+                                                                          @{Name = "LatestRecoveryPoint" ; Expression = {"N\A"}}
+    # build results set and return
+    $VMsReturn = $VMsFound | Where {$_.VMName -ne "Dummy"}
+    $VMsReturn += $VMsNotFound
+    $VMsReturn 
 
 }
 
-
-
-
-
+ $VMNames = @("Server1", "LBE-SV-LIQP-001", "LBE-SV-LIQP-002")
+ $res = Get-CVAzureVMBackupStatus -SubscriptionName "Non-Live" -GetLatestBackupDetails $true 
+ $res | ft
