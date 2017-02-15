@@ -30,6 +30,7 @@
   <ItemGroup>
     <Folder Include="Helper\" />
     <Folder Include="Public\" />
+    <Folder Include="Public\NewFolder1\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ABFunctions.psd1" />
@@ -39,6 +40,7 @@
     <Compile Include="Public\Get-CVAzureVMBackupStatus.ps1" />
     <Compile Include="Public\Get-GitHubLatestRelease.ps1" />
     <Compile Include="Helper\PowershellFunctionTemplate.ps1" />
+    <Compile Include="Public\Get-CVAzureRESTAuthHeader.ps1" />
     <Compile Include="Public\Get-MarkDownFileForCmdLets.ps1" />
     <Compile Include="Public\Get-ServiceMapSummary.ps1" />
     <Compile Include="Public\Set-AzureDocsUrisJSON.ps1" />
