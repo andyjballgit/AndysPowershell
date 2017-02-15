@@ -1,19 +1,17 @@
 ﻿<# 
  .Synopsis
-  For A Given VM Names or all VMs searches to if backed up by Azure Recovery Services
+  For given  VM Names or all VMs searches all Azure Recovery Services vaults in a given subscription to see if backed up
 
  .Description
   
-
   Prequisites
   -----------
   Azure RM Modules. Tested with 2.5.0 AzureRM.RecoveryServices    
 
   Returns 
   -------
-  Table Summary of VMs / Status
-
-
+  Table Summary of VMs / Backup Status
+  
   Limitations and Known Issues
   ----------------------------
   Assumes a VM is not found if doesn't find in Vaults - but might not be a valid VM Name for Subscription
@@ -21,6 +19,9 @@
   Backlog 
   --------
   - Show running backups
+  - Multiple Subscriptions
+  - Pipeable 
+  - Enable / Run backups
     
   Change Log
   ----------
@@ -216,6 +217,3 @@ Function Get-CVAzureVMBackupStatus
 
 }
 
- $VMNames = @("Server1", "LBE-SV-LIQP-001", "LBE-SV-LIQP-002")
- $res = Get-CVAzureVMBackupStatus -SubscriptionName "Non-Live" -GetLatestBackupDetails $true 
- $res | ft
