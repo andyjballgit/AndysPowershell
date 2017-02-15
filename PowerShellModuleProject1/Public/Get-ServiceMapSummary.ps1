@@ -55,6 +55,8 @@ Function Get-ServiceMapSummary
             [Parameter(Mandatory = $true, Position = 1)]  [string] $OMSResourceGroupName
         )
 
+    $ErrorActionPreference = "Stop"
+
     $CurrentSub = (Get-AzureRMContext).Subscription
     $CurrentSubscriptionName = $CurrentSub.SubscriptionName
     Write-Host "Current SubscriptionName = $CurrentSubscriptionName"
@@ -66,12 +68,14 @@ Function Get-ServiceMapSummary
 #    $uri = "https://management.azure.com/subscriptions/$SubscriptionID/resourceGroups/$OMSResourceGroupName/providers/Microsoft.OperationalInsights" + "?api-version=2016-09-01"
     
     Write-Host $uri 
-    $Header = @{'Authorization' = (Get-AzureRESTAuthHeader)}
+    $Header = @{'Authorization' = (Get-CVAzureRESTAuthHeader)}
 
-    Register-AzureRmResourceProvider -ProviderNamespace Microsoft.ApiManagement
+    Register-AzureRmResourceProvider -ProviderNamespace Microsoft.Operations
     $res = Invoke-RestMethod -Method GET -Uri $uri -Headers $Header -Debug -Verbose
     # GET /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.OperationalInsights/workspaces/{workspaceName}/features/serviceMap/summaries/machines?api-version=2015-11-01-preview[&startTime&endTime]
     $res 
 
 }
 
+  
+Get-ServiceMapSummary -OMSWorkspaceName  CloudviewWE -OMSResourceGroupName cloudviewneiaas 
