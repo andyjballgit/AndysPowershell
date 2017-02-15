@@ -40,6 +40,7 @@
     <Compile Include="Public\Get-GitHubLatestRelease.ps1" />
     <Compile Include="Helper\PowershellFunctionTemplate.ps1" />
     <Compile Include="Public\Get-MarkDownFileForCmdLets.ps1" />
+    <Compile Include="Public\Get-ServiceMapSummary.ps1" />
     <Compile Include="Public\Set-AzureDocsUrisJSON.ps1" />
     <Compile Include="Public\Get-AzureVMBootDiagnosticsScreen.ps1" />
   </ItemGroup>
