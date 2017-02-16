@@ -28,7 +28,8 @@
   v1.00 Andy Ball 11/02/2017 Base Version
   v1.01 Andy Ball 14/02/2017 Add non-found VMs to resultset
                              Fix bug where was returning Resource Group for the VMName in output
-  
+  v1.02 Andy Ball 16/02/2017 Fix bug where would fail with opaddition error if all VMs do not have backup enabled. 
+
  .Parameter VMNames
  1 or more VMs in a string array to query/run backups for . If blank will do the whole subscription
   
@@ -47,7 +48,7 @@
  .Example
  Get status for all VMs in current subscription
 
- $res = Get-CVBackupStatusForVMs -GetLatestBackupDetails $true 
+ $res = Get-CVAzureVMBackupStatus -GetLatestBackupDetails $true 
  $res | ft
  
 #>
@@ -75,7 +76,7 @@ Function Get-CVAzureVMBackupStatus
     Write-Host "Getting Current Context / Subscription"
     $CurrentSubscriptionName = (Get-AzureRmContext).Subscription.SubscriptionName
     
-    If ($SubscriptionName -ne $null)
+    If ( [string]::IsNullOrWhiteSpace($SubscriptionName) -eq $false)
         {
             $Subscriptions = Get-AzureRMSubscription
             $MySub = $Subscriptions | Where {$_.SubscriptionName -eq $SubscriptionName}
@@ -116,7 +117,7 @@ Function Get-CVAzureVMBackupStatus
     $VMsFound = @()
 
     # Get All Vaults
-    Write-Host "$VMsCount VMs to be processed, Getting all Recovery Vaults for Subscription Name = $SubscriptionName"
+    Write-Host "$VMsCount VMs to be processed, Getting all Recovery Vaults for Subscription Name = $CurrentSubscriptionName"
     $Vaults = Get-AzureRMRecoveryServicesVault 
     $VaultCount = @($Vaults).Count 
     $VaultCurrentNum = 1
@@ -169,6 +170,7 @@ Function Get-CVAzureVMBackupStatus
                                         }
                                     Else
                                         {
+                                            
                                             Write-Warning "Get-AzureRMRecoveryServicesBackupItem returned null = no current backup"
                                         }
                            
@@ -211,7 +213,9 @@ Function Get-CVAzureVMBackupStatus
                                                                           @{Name = "LastBackupStatus" ; Expression = {"N\A"}},
                                                                           @{Name = "LatestRecoveryPoint" ; Expression = {"N\A"}}
     # build results set and return
-    $VMsReturn = $VMsFound | Where {$_.VMName -ne "Dummy"}
+    # init as an array in case VMsFound is empty += wont work otherwise ! 
+    $VMsReturn = @()
+    $VMsReturn += $VMsFound | Where {$_.VMName -ne "Dummy"}
     $VMsReturn += $VMsNotFound
     $VMsReturn 
 
