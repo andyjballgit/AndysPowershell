@@ -2,8 +2,7 @@
 $ContainerPrefix = "SQLRocks"
 $PortNumberStart = 1501
 $PortNumber = $PortNumberStart
-$Instances = 2 
-$PackageName = 
+$Instances = 50
 
 For($Counter = 1 ; $Counter -le $Instances; $Counter++)
     {
