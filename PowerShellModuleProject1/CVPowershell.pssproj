@@ -45,9 +45,9 @@
     <Compile Include="Helper\PowershellFunctionTemplate.ps1" />
     <Compile Include="Public\Get-CVAzureRESTAuthHeader.ps1" />
     <Compile Include="Public\Get-MarkDownFileForCmdLets.ps1" />
-    <Compile Include="Public\Get-ServiceMapSummary.ps1" />
     <Compile Include="Public\Set-AzureDocsUrisJSON.ps1" />
     <Compile Include="Public\Get-AzureVMBootDiagnosticsScreen.ps1" />
+    <Compile Include="Public\Update-CVAzureRMDiskAttached.ps1" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ChangeLog.md" />
