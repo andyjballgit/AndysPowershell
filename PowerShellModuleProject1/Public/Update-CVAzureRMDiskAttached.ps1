@@ -9,6 +9,7 @@
   ----------
   v1.00 Andy Ball 26/02/2017 Base Version
   v1.01 Andy Ball 27/02/2017 Handle VM that already has Multiple Data Disks , ie LUN numbers 
+  v1.02 Andy Ball 27/02/2017 Change output slightly
 
   Backlog 
   --------
@@ -27,12 +28,9 @@
     $Stop = $true 
     $NewDiskSizeGB = 512
 
-Update-CVAzureRMDiskAttached -DiskName $DiskName -NewDiskSizeGB $NewDiskSizeGB -StopVMIfAttached $Stop 
- .Example
-
- .Example 
-
-#>
+    Update-CVAzureRMDiskAttached -DiskName $DiskName -NewDiskSizeGB $NewDiskSizeGB -StopVMIfAttached $Stop 
+ 
+ #>
 Function Update-CVAzureRMDiskAttached
 {
     Param
@@ -45,7 +43,9 @@ Function Update-CVAzureRMDiskAttached
 
     $ErrorActionPreference = "Stop"
 
+    # Get All Disks so we can display if not found
     $Disks = Get-AzureRMDisk
+
 
     $DataDisk = $Disks | Where {$_.Name -eq $DiskName}
     If ($DataDisk -eq $null)
@@ -56,6 +56,7 @@ Function Update-CVAzureRMDiskAttached
 
         }
 
+    # Validate not trying to shrink, which isnt supported
     $CurrentDiskSizeGB = $DataDisk.DiskSizeGB
     If ($CurrentDiskSizeGB -ge $NewDiskSizeGB)
         {
@@ -63,13 +64,16 @@ Function Update-CVAzureRMDiskAttached
             Break
         }
 
+    # OwnerID will point at VM attached
     $OwnerId = $DataDisk.OwnerId 
     If ($OwnerId -ne $null)
         {
+            # Get the VM
             $Resource = Get-AzureRMResource -ResourceId $OwnerId
             $VMName = $Resource.Name 
             $ResourceGroupName = $Resource.ResourceGroupName 
 
+            # Get status so we can see if running
             Write-Host "Disk is attached to VMName = $VMName in ResourceGroup = $ResourceGroupName, Doing Get-AzureRVM -Status on it"
             $VMStatus = Get-AzureRMVM -ResourceGroupName $ResourceGroupName -Name $VMName -Status
             $Status = $VMStatus.Statuses[1].Code
@@ -91,6 +95,8 @@ Function Update-CVAzureRMDiskAttached
                         }
                 }
 
+
+            # Have to do this cos we need different 
             Write-Verbose "Regetting VM without status switch" 
 
             $VM = Get-AzureRMVM -ResourceGroupName $ResourceGroupName -Name $VMName
@@ -111,16 +117,19 @@ Function Update-CVAzureRMDiskAttached
         }
     Else
         {
+            # Get the next available 
             $MaxLun = $VMDataDisks | Sort Lun | Select -Last 1
-
             $LUN = $MaxLun + 1
             Write-Host "Maximum Current LUN = $MaxLUN, setting LUN = $LUN"
         }
 
+
+    # Set the disk size and update it 
     Write-Host "Setting Data Disk to New Size = $NewDiskSizeGB (from $CurrentDiskSizeGB)"
     $DataDisk.DiskSizeGB = $NewDiskSizeGB
     Update-AzureRMDisk -Disk $DataDisk -ResourceGroupName $DataDisk.ResourceGroupName -DiskName $DataDisk.Name
 
+    # Reattach to VM and restart it 
     If ($OwnerId -ne $null)
         {
             Write-Host ("Adding Disk back to VM @ " + (Get-Date))
@@ -140,7 +149,7 @@ Function Update-CVAzureRMDiskAttached
             Write-Host "Regetting VM to check Disks"
             $VM = Get-AzureRMVM -ResourceGroupName $VM.ResourceGroupName -Name $VM.Name 
     
-            $VM.StorageProfile.DataDisks | Select * | ft
+            $VM.StorageProfile.DataDisks | Select Name, DiskSizeGB, Lun, Caching, SourceImage, @{Name = "Type" ; Expression = {$_.ManagedDisk.StorageAccountType}}
         }
     Else
         {
@@ -150,6 +159,4 @@ Function Update-CVAzureRMDiskAttached
 }
  
 
-
-Update-CVAzureRMDiskAttached -DiskName CV-SRV-TEST-001-DataDisk-02 -NewDiskSizeGB 512 -StopVMIfAttached $TRUE 
 

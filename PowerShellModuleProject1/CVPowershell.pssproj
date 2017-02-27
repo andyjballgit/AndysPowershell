@@ -31,7 +31,6 @@
     <Folder Include="Helper\" />
     <Folder Include="NotProductionQuality\" />
     <Folder Include="Public\" />
-    <Folder Include="Public\NewFolder1\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ABFunctions.psd1" />
