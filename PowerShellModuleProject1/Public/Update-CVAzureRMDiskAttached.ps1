@@ -28,10 +28,10 @@
  
     $DiskName = "CV-SRV-TEST-001-DataDisk-01"
     $Stop = $true
-    $ExpandDiskGB = 10
-    $Mode = "ExpandBy"
+    $ExpandDiskGB = 198
+    $Mode = "Expandto"
     $Start = $false 
-    $RemoveDisk = $false
+    $RemoveDisk = $true
 
     Update-CVAzureRMDiskAttached -DiskName $DiskName -Mode $Mode -ExpandGB $ExpandDiskGB  -StopVMIfAttached $Stop -StartVMIfAttached $Start -RemoveDisk $RemoveDisk
  
@@ -79,11 +79,12 @@ Function Update-CVAzureRMDiskAttached
             Write-Host "Mode is ExpandBy so will try and set to $NewDiskSizeGB GB (currently $CurrentDiskSizeGB GB)"
         }
 
-    If ($CurrentDiskSizeGB -ge $NewDiskSizeGB)
-        {
-            Write-Warning "CurrentDiskSize = $CurrentDiskSizeGB is greater or equal to NewDiskSizeGb = $NewDiskSizeGB. Quitting" 
-            Break
-        }
+
+    #If ($CurrentDiskSizeGB -ge $NewDiskSizeGB)
+     #   {
+      #      Write-Warning "CurrentDiskSize = $CurrentDiskSizeGB is greater or equal to NewDiskSizeGb = $NewDiskSizeGB. Quitting" 
+       #     Break
+        #}
 
     # OwnerID will point at VM attached
     $OwnerId = $DataDisk.OwnerId 
