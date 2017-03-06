@@ -10,6 +10,7 @@
   v1.00 Andy Ball 26/02/2017 Base Version
   v1.01 Andy Ball 27/02/2017 Handle VM that already has Multiple Data Disks , ie LUN numbers 
   v1.02 Andy Ball 27/02/2017 Change output slightly
+  V1.03 Andy Ball 06/03/2017 Add params to can choose to stop / start / remove disk
 
   Backlog 
   --------
@@ -22,13 +23,17 @@
  .Parameter StopVMIfRunning 
 
  .Example
- Expands to 512Gb , stopping the VM it is attached to if running
+ 
 
-    $DiskName = "MyServer-DataDisk-01"
-    $Stop = $true 
-    $NewDiskSizeGB = 512
+ 
+    $DiskName = "CV-SRV-TEST-001-DataDisk-01"
+    $Stop = $true
+    $ExpandDiskGB = 10
+    $Mode = "ExpandBy"
+    $Start = $false 
+    $RemoveDisk = $false
 
-    Update-CVAzureRMDiskAttached -DiskName $DiskName -NewDiskSizeGB $NewDiskSizeGB -StopVMIfAttached $Stop 
+    Update-CVAzureRMDiskAttached -DiskName $DiskName -Mode $Mode -ExpandGB $ExpandDiskGB  -StopVMIfAttached $Stop -StartVMIfAttached $Start -RemoveDisk $RemoveDisk
  
  #>
 Function Update-CVAzureRMDiskAttached
@@ -36,8 +41,12 @@ Function Update-CVAzureRMDiskAttached
     Param
         (
             [Parameter(Mandatory = $true, Position = 0)]  [string] $DiskName,
-            [Parameter(Mandatory = $true, Position = 1)]  [ValidateRange(1, 1023)] [int] $NewDiskSizeGB, 
-            [Parameter(Mandatory = $false, Position = 2)] [boolean]  $StopVMIfAttached = $false  
+            [Parameter(Mandatory = $true, Position = 1)]  [ValidateRange(1, 1023)] [int] $ExpandGB, 
+            [Parameter(Mandatory = $false, Position = 2)] [boolean]  $StopVMIfAttached = $false  , 
+            [Parameter(Mandatory = $false, Position = 2)] [boolean]  $StartVMIfAttached = $false  , 
+            [Parameter(Mandatory = $false, Position = 3)] [string]  [ValidateSet("ExpandBy", "ExpandTo")] $Mode = "ExpandBy" ,
+            [Parameter(Mandatory = $false, Position = 4)] [boolean]  $RemoveDisk = $false
+
 
         )
 
@@ -51,13 +60,25 @@ Function Update-CVAzureRMDiskAttached
     If ($DataDisk -eq $null)
         {
             Write-Warning "Cannot Find DiskName = $DiskName :" 
-            $Disks | Sort Name | Select * | Out-String
+            $Disks | Sort Name | Select Name, DiskSizeGB, Location | Sort Name | Out-String
             Break 
 
         }
 
     # Validate not trying to shrink, which isnt supported
     $CurrentDiskSizeGB = $DataDisk.DiskSizeGB
+    If ($Mode -eq "ExpandTo")
+        {
+            $NewDiskSizeGB = $ExpandGB             
+            Write-Host "Mode is ExpandTo so will try and set to $NewDiskSizeGB GB (currently $CurrentDiskSizeGB GB)"
+            
+        }
+    Else
+        {
+            $NewDiskSizeGB = $CurrentDiskSizeGB + $ExpandGB
+            Write-Host "Mode is ExpandBy so will try and set to $NewDiskSizeGB GB (currently $CurrentDiskSizeGB GB)"
+        }
+
     If ($CurrentDiskSizeGB -ge $NewDiskSizeGB)
         {
             Write-Warning "CurrentDiskSize = $CurrentDiskSizeGB is greater or equal to NewDiskSizeGb = $NewDiskSizeGB. Quitting" 
@@ -81,28 +102,44 @@ Function Update-CVAzureRMDiskAttached
             Write-Host "VM Status = $Status"
             If ($Status -eq "PowerState/Running")
                 {
-                    
-                    If ($StopVMIfAttached -eq $false)
-                        {
-                            Write-Warning "StopVMAttached param is false. Quitting"
-                            Break
-                        }
-                    Else
-                        {
+                    Write-Warning "VM is Running"
+                   # If ($StopVMIfAttached -eq $false)
+                   #     {
+                   #         Write-Warning "StopVMAttached param is false. Quitting"
+                   #         Break
+                   #     }
+                  #  Else
+                  #{
                             Write-Host ("Stopping VM @ " + (Get-Date))
                             Stop-AzureRMVM -Name $VMName -ResourceGroupName $ResourceGroupName -Force
                             Write-Host ("VM Now Stopped @ " + (Get-Date))
+                  #      }
+                }
+            Else
+                {
+                    Write-Host "VM is Stopped"
+                    If ($StartVMIfAttached)
+                        {
+                            Write-Warning "Startimg VM"
+                            Start-AzureRMVM -Name $VMName -ResourceGroupName $ResourceGroupName 
                         }
                 }
 
-
-            # Have to do this cos we need different 
+            # Have to do this cos we need different format, 
             Write-Verbose "Regetting VM without status switch" 
-
             $VM = Get-AzureRMVM -ResourceGroupName $ResourceGroupName -Name $VMName
-            Write-Host ("Removing DiskName = $DiskName from VM @ " + (Get-Date))
-            Remove-AzureRmVMDataDisk -VM $VM -DataDiskNames $DiskName | Update-AzureRMVM 
-
+                    
+            If ($RemoveDisk)
+                {
+                    Write-Host "Removing Disk $DiskName"
+                    $VM = Get-AzureRMVM -ResourceGroupName $ResourceGroupName -Name $VMName
+                    Write-Host ("Removing DiskName = $DiskName from VM @ " + (Get-Date))
+                    Remove-AzureRmVMDataDisk -VM $VM -DataDiskNames $DiskName | Update-AzureRMVM 
+                }
+            Else
+                {
+                    Write-Warning "Remove Disk is false"
+                }
         }
 
     # reget as other was status
@@ -131,10 +168,13 @@ Function Update-CVAzureRMDiskAttached
 
     # Reattach to VM and restart it 
     If ($OwnerId -ne $null)
-        {
-            Write-Host ("Adding Disk back to VM @ " + (Get-Date))
-            Add-AzureRmVMDataDisk -ManagedDiskId $DataDisk.id -VM $VM -Name $DataDisk.Name -LUN $LUN -CreateOption Attach | Update-AzureRmVM
-    
+    {
+            If ($RemoveDisk)
+            {
+                Write-Host ("Adding Disk back to VM @ " + (Get-Date))
+                Add-AzureRmVMDataDisk -ManagedDiskId $DataDisk.id -VM $VM -Name $DataDisk.Name -LUN $LUN -CreateOption Attach | Update-AzureRmVM
+            }
+
             # ie if VM was running before, restart
             If($Status -eq "PowerState/Running")
                 {
@@ -158,5 +198,6 @@ Function Update-CVAzureRMDiskAttached
         }
 }
  
+
 
 
