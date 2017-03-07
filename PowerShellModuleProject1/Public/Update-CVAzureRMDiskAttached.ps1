@@ -1,6 +1,6 @@
 <# 
  .Synopsis
-  Updates Size of an Azure Managed Disk even if attached to a VM (by detaching, resizing, reattaching if neccessary)
+  Updates Size of an Azure Managed Disk even if attached to a VM (by detaching, resizing, reattaching if neccessary) as appears to fail if attached to a VM
 
  .Description
  See https://docs.microsoft.com/en-us/azure/storage/storage-managed-disks-overview 
@@ -11,30 +11,58 @@
   v1.01 Andy Ball 27/02/2017 Handle VM that already has Multiple Data Disks , ie LUN numbers 
   v1.02 Andy Ball 27/02/2017 Change output slightly
   V1.03 Andy Ball 06/03/2017 Add params to can choose to stop / start / remove disk
+  v1.04 Andy Ball 07/03/2017 Tidy up output / complete help 
+
+  Limitations and Known Issues 
+  ----------------------------
+  - VM Status (Running etc) display doesn't always work
+  - Get below if expanding and attached to a VM , can only get it to work by detaching
+  
+  Start-AzureRMVM : Long running operation failed with status 'Failed'.
+    ErrorCode: BadRequest
+    ErrorMessage: Disks or snapshot cannot be resized down.
+    StartTime: 07/03/2017 05:28:25
+    EndTime: 07/03/2017 05:28:25
+    OperationID: 461f509c-da87-4b89-8d09-97abfebc8880
+    Status: Failed
 
   Backlog 
   --------
- 
 
  .Parameter DiskName
+  Name of Managed Disk to Expand 
+
+ .Parameter ExpandGB
+ Has 2 meanings : If Mode = ExpandBy , then it will increase by ExpandGB Gbytes , else if ExpandTo it will increase to ExpandGB GBytes
   
- .Parameter NewSizeGBytes
-  
- .Parameter StopVMIfRunning 
+ .Parameter StopVMIfAttached
+ if Managed Disk is attached to VM , will stop. True by default
+
+ .Parameter Remove Disk
+ If true , will remove the disk , expand, reattach. As of this writing if dont do that fails 
 
  .Example
- 
-
- 
+ Expand current size *BY* 20Gb
+  
     $DiskName = "CV-SRV-TEST-001-DataDisk-01"
     $Stop = $true
-    $ExpandDiskGB = 198
-    $Mode = "Expandto"
-    $Start = $false 
-    $RemoveDisk = $true
+    $ExpandDiskGB = 20
+    $Mode = "ExpandBY"
+    $RemoveDisk = $false
 
-    Update-CVAzureRMDiskAttached -DiskName $DiskName -Mode $Mode -ExpandGB $ExpandDiskGB  -StopVMIfAttached $Stop -StartVMIfAttached $Start -RemoveDisk $RemoveDisk
+    Update-CVAzureRMDiskAttached -DiskName $DiskName -Mode $Mode -ExpandGB $ExpandDiskGB  -StopVMIfAttached $Stop  -RemoveDisk $RemoveDisk
  
+ .Example 
+  Expand Current Disk size *TO* 420gb
+
+    $DiskName = "CV-SRV-TEST-001-DataDisk-01"
+    $Stop = $true
+    $ExpandDiskGB = 420
+    $Mode = "ExpandTo"
+    $RemoveDisk = $True
+
+    Update-CVAzureRMDiskAttached -DiskName $DiskName -Mode $Mode -ExpandGB $ExpandDiskGB  -StopVMIfAttached $Stop  -RemoveDisk $RemoveDisk
+
  #>
 Function Update-CVAzureRMDiskAttached
 {
@@ -42,8 +70,7 @@ Function Update-CVAzureRMDiskAttached
         (
             [Parameter(Mandatory = $true, Position = 0)]  [string] $DiskName,
             [Parameter(Mandatory = $true, Position = 1)]  [ValidateRange(1, 1023)] [int] $ExpandGB, 
-            [Parameter(Mandatory = $false, Position = 2)] [boolean]  $StopVMIfAttached = $false  , 
-            [Parameter(Mandatory = $false, Position = 2)] [boolean]  $StartVMIfAttached = $false  , 
+            [Parameter(Mandatory = $false, Position = 2)] [boolean]  $StopVMIfAttached = $true  ,  
             [Parameter(Mandatory = $false, Position = 3)] [string]  [ValidateSet("ExpandBy", "ExpandTo")] $Mode = "ExpandBy" ,
             [Parameter(Mandatory = $false, Position = 4)] [boolean]  $RemoveDisk = $false
 
@@ -79,12 +106,20 @@ Function Update-CVAzureRMDiskAttached
             Write-Host "Mode is ExpandBy so will try and set to $NewDiskSizeGB GB (currently $CurrentDiskSizeGB GB)"
         }
 
+    # NB this is lt as opposed lte cos can run it with same size to repair situation when try and expand Disk when attached 
+    # and wont start as per help 
 
-    #If ($CurrentDiskSizeGB -ge $NewDiskSizeGB)
-     #   {
-      #      Write-Warning "CurrentDiskSize = $CurrentDiskSizeGB is greater or equal to NewDiskSizeGb = $NewDiskSizeGB. Quitting" 
-       #     Break
-        #}
+    If ($NewDiskSizeGB -lt $CurrentDiskSizeGB)
+        {
+            Write-Warning "New Disk Size = $NewDiskSizeGB Gbytes is < Current Disk Size = $CurrentDiskSizeGB Gbytes"
+            Break
+        }
+
+    If ($NewDiskSizeGB -gt 1023)
+        {
+            Write-Warning "New Disk Size is $NewDiskSizeGB Gbytes, Maximum = 1023"
+            Break 
+        }
 
     # OwnerID will point at VM attached
     $OwnerId = $DataDisk.OwnerId 
@@ -104,26 +139,22 @@ Function Update-CVAzureRMDiskAttached
             If ($Status -eq "PowerState/Running")
                 {
                     Write-Warning "VM is Running"
-                   # If ($StopVMIfAttached -eq $false)
-                   #     {
-                   #         Write-Warning "StopVMAttached param is false. Quitting"
-                   #         Break
-                   #     }
-                  #  Else
-                  #{
+                    If ($StopVMIfAttached -eq $false)
+                        {
+                            Write-Warning "StopVMAttached param is false. Quitting"
+                            Break
+                        }
+                    Else
+                        {
                             Write-Host ("Stopping VM @ " + (Get-Date))
                             Stop-AzureRMVM -Name $VMName -ResourceGroupName $ResourceGroupName -Force
                             Write-Host ("VM Now Stopped @ " + (Get-Date))
-                  #      }
+                        }
                 }
             Else
                 {
                     Write-Host "VM is Stopped"
-                    If ($StartVMIfAttached)
-                        {
-                            Write-Warning "Startimg VM"
-                            Start-AzureRMVM -Name $VMName -ResourceGroupName $ResourceGroupName 
-                        }
+                   
                 }
 
             # Have to do this cos we need different format, 
@@ -132,7 +163,6 @@ Function Update-CVAzureRMDiskAttached
                     
             If ($RemoveDisk)
                 {
-                    Write-Host "Removing Disk $DiskName"
                     $VM = Get-AzureRMVM -ResourceGroupName $ResourceGroupName -Name $VMName
                     Write-Host ("Removing DiskName = $DiskName from VM @ " + (Get-Date))
                     Remove-AzureRmVMDataDisk -VM $VM -DataDiskNames $DiskName | Update-AzureRMVM 
@@ -141,31 +171,29 @@ Function Update-CVAzureRMDiskAttached
                 {
                     Write-Warning "Remove Disk is false"
                 }
-        }
-
-    # reget as other was status
-    $VM = Get-AzureRMVM -ResourceGroupName $VM.ResourceGroupName -Name $VM.Name 
-    $VMDataDisks = $VM.StorageProfile.DataDisks
-
-    # ie it has no Data Disks so hard code LUN to 0 
-    If ($VMSDataDisks -eq $null)
-        {
-            Write-Host "VM has no Data Disks so setting LUN to 0"
-            $LUN = 0
-        }
+        # Figure out LUN 
+        If ($VMSDataDisks -eq $null)
+            {
+                Write-Host "VM has no other Data Disks so setting LUN to 0"
+                $LUN = 0
+            }
+        Else
+            {
+                    # Get the next available 
+                    $MaxLun = $VMDataDisks | Sort Lun | Select -Last 1
+                    $LUN = $MaxLun + 1
+                    Write-Host "Maximum Current LUN = $MaxLUN, setting LUN = $LUN"
+            }
+    }
     Else
         {
-            # Get the next available 
-            $MaxLun = $VMDataDisks | Sort Lun | Select -Last 1
-            $LUN = $MaxLun + 1
-            Write-Host "Maximum Current LUN = $MaxLUN, setting LUN = $LUN"
+            Write-Warning "$DiskName is not attached to a VM"
         }
-
-
+ 
     # Set the disk size and update it 
-    Write-Host "Setting Data Disk to New Size = $NewDiskSizeGB (from $CurrentDiskSizeGB)"
     $DataDisk.DiskSizeGB = $NewDiskSizeGB
-    Update-AzureRMDisk -Disk $DataDisk -ResourceGroupName $DataDisk.ResourceGroupName -DiskName $DataDisk.Name
+    Write-Host ("Starting Update-AzureRMDisk to " + ($DataDisk.DiskSizeGB) + " Gbytes") 
+    $UpdateDisk = Update-AzureRMDisk -Disk $DataDisk -ResourceGroupName $DataDisk.ResourceGroupName -DiskName $DataDisk.Name
 
     # Reattach to VM and restart it 
     If ($OwnerId -ne $null)
@@ -180,7 +208,7 @@ Function Update-CVAzureRMDiskAttached
             If($Status -eq "PowerState/Running")
                 {
                     Write-Host ("Restarting $VMName @ " + (Get-Date))
-                    Start-AzureRMVM -Name $VMName -ResourceGroupName $ResourceGroupName
+                    $StartVM = Start-AzureRMVM -Name $VMName -ResourceGroupName $ResourceGroupName
                 }
             Else
                 {
@@ -190,15 +218,13 @@ Function Update-CVAzureRMDiskAttached
             Write-Host "Regetting VM to check Disks"
             $VM = Get-AzureRMVM -ResourceGroupName $VM.ResourceGroupName -Name $VM.Name 
     
-            $VM.StorageProfile.DataDisks | Select Name, DiskSizeGB, Lun, Caching, SourceImage, @{Name = "Type" ; Expression = {$_.ManagedDisk.StorageAccountType}}
+            $VM.StorageProfile.DataDisks | Select Name, DiskSizeGB, Lun, Caching, SourceImage, @{Name = "Type" ; Expression = {$_.ManagedDisk.StorageAccountType}} | ft 
         }
     Else
         {
             # reget if not attached to a VM 
-            Get-AzureRMDisk -ResourceGroupName $DataDisk.ResourceGroupName -DiskName $DataDisk.Name
+            Write-Host "Disk not Attached to VM"
+            Get-AzureRMDisk -ResourceGroupName $DataDisk.ResourceGroupName -DiskName $DataDisk.Name | Select Name, DiskSizeGB
         }
 }
  
-
-
-

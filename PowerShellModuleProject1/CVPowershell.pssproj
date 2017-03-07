@@ -28,13 +28,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Folder Include="ARMTemplates\ManagedDiskRepro\" />
     <Folder Include="Helper\" />
+    <Folder Include="ARMTemplates\" />
     <Folder Include="NotProductionQuality\" />
     <Folder Include="Public\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ABFunctions.psd1" />
     <Compile Include="ABFunctions.psm1" />
+    <Compile Include="ARMTemplates\ManagedDiskRepro\deploy.ps1" />
     <Compile Include="Helper\GenerateReadMe.ps1" />
     <Compile Include="NotProductionQuality\RDPPIPByVMName.ps1" />
     <Compile Include="NotProductionQuality\StartDocker.ps1" />
@@ -49,6 +52,10 @@
     <Compile Include="Public\Update-CVAzureRMDiskAttached.ps1" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ARMTemplates\ManagedDiskRepro\azuredeploy.json" />
+    <Content Include="ARMTemplates\ManagedDiskRepro\azuredeploy.parameters.json" />
+    <Content Include="ARMTemplates\ManagedDiskRepro\metadata.json" />
+    <Content Include="ARMTemplates\ManagedDiskRepro\README.md" />
     <Content Include="ChangeLog.md" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
