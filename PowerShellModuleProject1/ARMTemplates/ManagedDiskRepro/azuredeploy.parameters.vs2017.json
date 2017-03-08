@@ -1,0 +1,13 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+                  "adminUsername": {"value": "Andy"},
+                  "dnsLabelPrefix": {"value": "cvsvrdev001"},
+                  "MyVMName": {"value": "CV-SVR-DEV-001"},
+                  "VMImagePublisher": { "value": "MicrosoftVisualStudio" },
+                  "VMImageOffer": { "value": "VisualStudio" },
+                  "VMImageSKU": { "value": "VisualStudio" }
+    
+  }
+}

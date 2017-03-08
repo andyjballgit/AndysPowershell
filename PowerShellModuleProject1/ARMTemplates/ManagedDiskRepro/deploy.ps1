@@ -1,28 +1,33 @@
 $ErrorActionPreference = "Stop"
 $DoRegisterProviders = $false
-$DoDeleteResourceGroup = $true
-$DoStopVM = $true
-$DoStartVMAfterIncrease = $true 
-$DoIncreaseSize = $true 
+$DoDeleteResourceGroup = $FALSE
+$DoStopVM = $FALSE
+$DoStartVMAfterIncrease = $FALSE 
+$DoIncreaseSize = $FALSE
 
-$ResourceGroupName = "CV-RG-TEST-003"
-$VMName = "CV-SVR-TEST-003"
+$ResourceGroupName = "CV-RG-DEV-001"
+$VMName = "CV-SVR-DEV-001"
 $AdminUserName = "Andy"
 $ResourceGroupLocation = "North Europe"
-[int]$DataDiskSizeGBInitial = 256
+[int]$DataDiskSizeGBInitial = 128
 
 $IncreaseDataDiskSizeGB = 10 
 
 $templateFilePath = $PSScriptRoot + "\azuredeploy.json"
 
 
-$parametersFilePath = $PSScriptRoot + "\azuredeploy.parameters.json"
+$parametersFilePath = $PSScriptRoot + "\azuredeploy.parameters.vs2017.json"
 $params = @{MyVMName=$VMName;
             dnsLabelPrefix= ($VMName.ToLower().Replace("-", ""));
             adminUserName = $AdminUserName;
-            DataDiskSizeGB = $DataDiskSizeGBInitial
+            DataDiskSizeGB = $DataDiskSizeGBInitial;
+            VMImagePublisher = "MicrosoftVisualStudio" ; 
+            VMImageOffer = "VisualStudio" ; 
+            VMImageSKU = "VS-2017-Ent-WS2016"
+
             }
 
+$params = $null 
 
 
 

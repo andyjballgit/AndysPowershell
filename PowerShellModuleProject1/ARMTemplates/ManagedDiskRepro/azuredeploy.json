@@ -38,16 +38,37 @@
     },
 
     "DataDiskSizeGB": {
-            "type": "int",
-            "defaultValue": "128",
-            "metadata": {"description": "Initial Size of 1st Data Disk" }
-        }, 
+      "type": "int",
+      "defaultValue": 128,
+      "metadata": { "description": "Initial Size of 1st Data Disk" }
+    },
 
-      "MyVMName": {
-            "type": "string",
-            "defaultValue": "SimpleWinVM",
-            "metadata": {"description": "Name of the VM" }
-        }
+    "MyVMName": {
+      "type": "string",
+      "defaultValue": "SimpleWinVM",
+      "metadata": { "description": "Name of the VM" }
+    },
+
+    "VMImagePublisher": {
+      "type": "string",
+      "defaultValue": "MicrosoftWindowsServer",
+      "metadata": { "description": "Image Publisher for VM" }
+    },
+
+    "VMImageOffer": {
+      "type": "string",
+      "defaultValue": "WindowsServer",
+      "metadata": { "description": "VM IMage Offer" }
+    },
+
+    "VMImageSKU": {
+      "type": "string",
+      "defaultValue": "[parameters('windowsOSVersion')]",
+      "metadata": { "description": "VMImageSKU" }
+    }
+
+    
+
   },
   "variables": {
     "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'sawinvm')]",
@@ -151,9 +172,9 @@
         },
         "storageProfile": {
           "imageReference": {
-            "publisher": "MicrosoftWindowsServer",
-            "offer": "WindowsServer",
-            "sku": "[parameters('windowsOSVersion')]",
+            "publisher": "[parameters('VMImagePublisher')]",
+            "offer": "[parameters('VMImageOffer')]",
+            "sku": "[parameters('VMImageSKU')]",
             "version": "latest"
           },
           "osDisk": {

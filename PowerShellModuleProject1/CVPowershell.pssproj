@@ -31,6 +31,7 @@
     <Folder Include="ARMTemplates\ManagedDiskRepro\" />
     <Folder Include="Helper\" />
     <Folder Include="ARMTemplates\" />
+    <Folder Include="Documentation\" />
     <Folder Include="NotProductionQuality\" />
     <Folder Include="Public\" />
   </ItemGroup>
@@ -53,10 +54,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ARMTemplates\ManagedDiskRepro\azuredeploy.json" />
+    <Content Include="ARMTemplates\ManagedDiskRepro\azuredeploy.parameters.vs2017.json" />
     <Content Include="ARMTemplates\ManagedDiskRepro\azuredeploy.parameters.json" />
     <Content Include="ARMTemplates\ManagedDiskRepro\metadata.json" />
     <Content Include="ARMTemplates\ManagedDiskRepro\README.md" />
     <Content Include="ChangeLog.md" />
+    <Content Include="Documentation\AndyBallCV.md" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="Build" />
