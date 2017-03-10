@@ -1,4 +1,4 @@
-﻿$VMName = "SomeServer"
+﻿$VMName = "CloudviewTSG1"
 
 $VM = Get-AzureRMVM | Where Name -eq $VMName 
 

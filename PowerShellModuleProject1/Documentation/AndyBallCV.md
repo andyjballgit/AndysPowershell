@@ -19,13 +19,6 @@
 
 ## Key Qualifications / Training 
 
-
-## Approach / Soft skills
-* Passionate about learning / delivering technologies that deliver tangible business value
-* Enjoy working with related teams to deliver above 
-* Equally comfortable Architecting Azure Infrastructure / producing High/Low Level designs as well as using Netmon / Process viewer to try and troubleshoot / reverse engineeer some weird 3rd party app
-
-
 ## Industries / Verticals Summary
 * Financial Services (Deutsche Bank, RBS, Barcap, UBS, HSBC)
 * Startup / Dot Com / New Media (SpIndex, Be Interactive, Improveline)
@@ -41,5 +34,3 @@
 
 ### Cloud Solution Architect - Microsoft
 
-## Hobbies 
-See above
