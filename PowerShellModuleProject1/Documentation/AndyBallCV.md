@@ -2,10 +2,8 @@
 
 ## Work status
 * Last Updated 7th March 2017
-* Dual UK / Australian Citizen
+* UK and Australian Citizen
 * Generally interested in roles in and around Central London.
-* Not currently looking
-
 
 
 ## Skills (in knowledge / relevance order)
@@ -14,17 +12,18 @@
 * SQL Server Engineering / Development / Admin / Support
 * C# ASP.Net / Web API / REST / Entity Framework.
 * Producing Automation / Tooling solutions for above
-* Ability to troubleshoot "top to bottom" of above stack 
+* Ability to troubleshoot "top to bottom" of above stack using tools such Message Analyser / Network Monitor , Application Insights , OMS , WMI, Powershell
 * Markdown..
 
 ## Key Qualifications / Training 
 
 ## Industries / Verticals Summary
 * Financial Services (Deutsche Bank, RBS, Barcap, UBS, HSBC)
-* Startup / Dot Com / New Media (SpIndex, Be Interactive, Improveline)
+* Startup / Dot Com / New Media (Sp-Index, Be Interactive, Improveline)
 * Manufacturing (CSR Australia)
-* Multinational Software / Devices (Microsoft)
-* Public Sector ()
+* Multinational Software / Services / Devices (Microsoft)
+* Public Sector (Enfield Council)
+* Recruitment (Corporate Services Group)
 
 ## Assignments / Job History Detail
 
