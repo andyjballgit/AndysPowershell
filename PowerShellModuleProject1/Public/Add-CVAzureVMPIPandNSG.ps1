@@ -174,7 +174,7 @@ Function Add-CVAzureVMPIPandNSG
         $CurrentPriorityNumber = $StartingPriorityNumber 
         ForEach ($TCPPort in $AllowedTCPPortList)
             {
-                $RuleName = "Allow_Port_" + $TCPPort + "_To_" + $MyIpAddress.Replace(".", "_")
+                $RuleName = "Allow_Port_" + $TCPPort + "_From_" + $MyIpAddress.Replace(".", "_")
                 $Description = "Allow access to Port $TCPPort from $CIDR"
                 Write-Host "`tCreating RuleName = $RuleName, Description = $Description for TCP Port = $TCPPort"
                 $NewRuleConfig = Add-AzureRMNetworkSecurityRuleConfig -NetworkSecurityGroup $NSG -Name $RuleName -Description $Description -Protocol Tcp -SourcePortRange "*" -DestinationPortRange $TCPPort -SourceAddressPrefix $CIDR -DestinationAddressPrefix "*" -Access Allow -Priority $CurrentPriorityNumber -Direction Inbound -Verbose | Set-AzureRmNetworkSecurityGroup 
@@ -244,5 +244,3 @@ Function Add-CVAzureVMPIPandNSG
 }
 
 
-
-  Add-CVAzureVMPIPandNSG -VMName "CV-SRV-DOCK-001" -ListVMsIfNotFound $true -AllowedTCPPortList 443,3389
