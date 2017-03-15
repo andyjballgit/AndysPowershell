@@ -54,10 +54,10 @@
  .Parameter StartingPriorityNumber
  Priority number to start adding Allows to in NSG. Defaults to 200. 
 
- .StartVM
+ .Parameter StartVM
  Boolean. If true (default) will Start the VM if not running
 
- .ConnectToVM
+ .Parameter ConnectToVM
  Boolean. If true (default) will RDP usings Mstsc.exe to the Public IP Address 
  
  
