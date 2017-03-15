@@ -3,11 +3,12 @@
   Adds Public IP and restricive NSG to given VM. Idea is that can get public access tempoarily to VM , restrict to just current public IP of the caller. Lazy, cheaper, slightly less secure alternative to using Point to Site (P2S).  
 
  .Description
-  Bit dangerious when in Internet Cafes etc :-)
+  Bit dangerious when in Internet Cafes etc, designed as a quick and dirty fix really should be using Point to Site or similar. 
 
   Prequisites
   -----------
   - AzureRM Cmdlets
+  - Ports are allowed through firewall / Router - often Port 3389 is blocked 
 
   Change Log
   ----------
@@ -22,9 +23,10 @@
   --------
   - have an expiry date / time , hook into Azure Automation or web job
   - or have global Azure Automation script - remove Public IP from NICs / VMs unless PublicFacing tag is true 
-  - or at least generate command text to remove 
-
-
+  - allow Current IP Address to be passed in , in case the url for looking up is blocked (this has happened)
+  - Luxury version to put a Load balancer in front redirecting from port 443 to 3389 (or do NETSH Port mapping on client)
+  - maybe backup existing NSG config if already exists as gets currently gets deleted if exists. 
+  
  .Parameter VMName
  Name of VM to connect to 
   
@@ -41,7 +43,7 @@
  By default just allows access / adds to NSG for the callers public ip address , add additional addresses here. 
 
  .Parameter AllowedTCPPortList
- Arrary of TCP Ports to allow access to 
+ Array of TCP Ports to allow access to VM. Currently will combine this with public facing ip address of the caller.  
 
  .Parameter ListVMsIfNotFound
  If true (default) will list out VMs if VMName param is found not to exist
@@ -65,6 +67,7 @@
     Add-CVAzureVMPIPandNSG -VMName "CV-SRV-DOCK-001" -ListVMsIfNotFound $true 
 
  .Example
+  443 too 
   Add-CVAzureVMPIPandNSG -VMName "CV-SRV-DOCK-001" -ListVMsIfNotFound $true -AllowedTCPPortList 443,3389
 
  .Example 
@@ -242,5 +245,3 @@ Function Add-CVAzureVMPIPandNSG
     Write-Host "Writing delete commands to $RemovePIPAndNSGFileName"
     $RemoveText | Out-File -FilePath $RemovePIPandNSGFilename -Force
 }
-
-
