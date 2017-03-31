@@ -12,6 +12,10 @@
   ----------
   v1.00 Andy Ball 12/03/2017
 
+  Limitations
+  -----------
+  Force option not implemented yet
+
   Backlog 
   --------
   -
@@ -27,7 +31,9 @@
  Switch whether to pass in Force
 
  .Example
-
+ Will prompt to remove each disk as no -Force option
+    Remove-AzureRMVMAndDisks -Name "CV-SRV-SCOM-001" -ResourceGroupName "CV-RG-INF-001"
+ 
  .Example
 
  .Example 
@@ -75,5 +81,3 @@ Function Remove-AzureRMVMAndDisks
 
 }
 
-
-Remove-AzureRMVMAndDisks -Name "CV-SRV-SCOM-001" -ResourceGroupName "CV-RG-INF-001"

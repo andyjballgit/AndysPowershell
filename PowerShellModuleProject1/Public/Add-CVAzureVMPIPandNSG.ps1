@@ -14,6 +14,7 @@
   ----------
   v1.00 Andy Ball 11/03/2017 Base Version. 
   v1.01 Andy Ball 11/03/2017 Generates a .ps1 file to delete PIP and NSG when u r done
+  V1.02 Andy Ball 27/03/2017 Added ResourceGroup parameter
 
   Limitations
   ----------
@@ -29,7 +30,10 @@
   
  .Parameter VMName
  Name of VM to connect to 
-  
+ 
+ .Parameter ResourceGroupName
+ Name of Resource Group where VM Resides
+
  .Parameter PIPName
  Name of Public IP Address to be added to VMs NIC. Defaults to VMName-PIP-001
   
@@ -78,29 +82,32 @@ Function Add-CVAzureVMPIPandNSG
     Param
         (
             [Parameter(Mandatory = $true, Position = 0)]  [string] $VMName,
-            [Parameter(Mandatory = $false, Position = 1)] [string] $PIPName = $VMName + "-PIP-001", 
-            [Parameter(Mandatory = $false, Position = 2)] [string] $NSGName = $VMName + "-NSG-001", 
-            [Parameter(Mandatory = $false, Position = 3)] [boolean] $NSGCreateIfNotExist = $true,
-            [Parameter(Mandatory = $false, Position = 4)] [string[]] $AllowedIPList = @(), 
-            [Parameter(Mandatory = $false, Position = 5)] [int[]] $AllowedTCPPortList = @(3389), 
-            [Parameter(Mandatory = $false, Position = 6)] [boolean] $ListVMsIfNotFound = $false, 
-            [Parameter(Mandatory = $false, Position = 7)] [string] $URIGetOwnPIP = "http://myexternalip.com/raw", 
-            [Parameter(Mandatory = $false, Position = 8)] [int] $StartingPriorityNumber = 200,
-            [Parameter(Mandatory = $false, Position = 9)] [int] $StartVM = $true,
-            [Parameter(Mandatory = $false, Position = 10)] [int] $ConnectToVM = $true, 
-            [Parameter(Mandatory = $false, Position = 11)] [string] $RemovePIPandNSGFilename = "c:\temp\RemovePIPAndNSG.ps1"
+            [Parameter(Mandatory = $true, Position = 1)]  [string] $ResourceGroupName,
+            [Parameter(Mandatory = $false, Position = 2)] [string] $PIPName = $VMName + "-PIP-001", 
+            [Parameter(Mandatory = $false, Position = 3)] [string] $NSGName = $VMName + "-NSG-001", 
+            [Parameter(Mandatory = $false, Position = 4)] [boolean] $NSGCreateIfNotExist = $true,
+            [Parameter(Mandatory = $false, Position = 5)] [string[]] $AllowedIPList = @(), 
+            [Parameter(Mandatory = $false, Position = 6)] [int[]] $AllowedTCPPortList = @(3389), 
+            [Parameter(Mandatory = $false, Position = 7)] [boolean] $ListVMsIfNotFound = $false, 
+            [Parameter(Mandatory = $false, Position = 8)] [string] $URIGetOwnPIP = "http://myexternalip.com/raw", 
+            [Parameter(Mandatory = $false, Position = 9)] [int] $StartingPriorityNumber = 200,
+            [Parameter(Mandatory = $false, Position = 10)] [int] $StartVM = $true,
+            [Parameter(Mandatory = $false, Position = 11)] [int] $ConnectToVM = $true, 
+            [Parameter(Mandatory = $false, Position = 12)] [string] $RemovePIPandNSGFilename = "c:\temp\RemovePIPAndNSG.ps1"
         )
 
     $ErrorActionPreference = "Stop"
 
     # 1. Get all Vms so we can validate it exists / use it
-    Write-Host "Getting All VMs"
+    $RMContext = Get-AzureRmContext 
+    $CurrentSubscriptionName = $RMContext.Subscription.SubscriptionName
+    Write-Host "Getting All VMs in Subscription = $CurrentSubscriptionName"
     $VMs = Get-AzureRMVM 
 
-    $VM = $VMs | Where {$_.Name -eq $VMName}
+    $VM = $VMs | Where {$_.Name -eq $VMName -AND $_.ResourceGroupName -eq $ResourceGroupName}
     If ($VM -eq $null)
         {
-            Write-Warning "VMName = $VMName does not exist. Quitting..."
+            Write-Warning "VMName = $VMName in RespurceGroupName = $ResourceGroupName does not exist. Quitting..."
             If($ListVMsIfNotFound)
                 {
                     $VMs | Select Name, ResourceGroupName | Out-String 
@@ -109,13 +116,17 @@ Function Add-CVAzureVMPIPandNSG
         }
 
     #2. Check for existing PIP 
+   
     $NICId = $VM.NetworkProfile.NetworkInterfaces[0].Id
     $NICResource = Get-AzureRMResource -ResourceId $NICId
 
+
     $NICName = $NICResource.Name
+    Write-Host "Getting Network Interface = $NICName for VM = $VMName"
     $NIC = Get-AzureRMNetworkInterface -Name $NICName -ResourceGroupName $NICResource.ResourceGroupName 
     $IPConfigName = $NICResource.Properties.IPconfigurations[0].Name
 
+    Write-Host "Getting IPConfig for $NICName"
     $IPConfig = Get-AzureRmNetworkInterfaceIpConfig -Name $IPConfigName -NetworkInterface $NIC
     
     If ($IPConfig.PublicIpAddress -ne $null)
@@ -129,6 +140,7 @@ Function Add-CVAzureVMPIPandNSG
         {
             Write-Host "NIC = $NICName has no public IP Address, creating $PIPName"
             $PIP = New-AzureRmPublicIpAddress -Name $PIPName -ResourceGroupName $VM.ResourceGroupName -Location $VM.Location -AllocationMethod Dynamic -DomainNameLabel $VMName.ToLower() -Force
+            $PIPResourceGroupName = $VM.ResourceGroupName
             $NIC.IpConfigurations[0].PublicIpAddress = $PIP
             $NIC | Set-AzureRmNetworkInterface
         }
