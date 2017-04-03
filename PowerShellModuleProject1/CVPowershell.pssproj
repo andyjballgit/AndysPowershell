@@ -50,6 +50,7 @@
     <Compile Include="Public\Get-CVAzureRESTAuthHeader.ps1" />
     <Compile Include="Public\Get-MarkDownFileForCmdLets.ps1" />
     <Compile Include="Public\Add-CVAzureVMPIPandNSG.ps1" />
+    <Compile Include="Public\Get-CVAzureResourceHealth.ps1" />
     <Compile Include="Public\Remove-AzureRMVMAndDisks.ps1" />
     <Compile Include="Public\Set-AzureDocsUrisJSON.ps1" />
     <Compile Include="Public\Get-AzureVMBootDiagnosticsScreen.ps1" />
