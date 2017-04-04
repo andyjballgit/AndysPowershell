@@ -25,7 +25,7 @@
   Change Log
   ----------
   v1.00 Andy Ball 21/12/2016 Base Version
-
+  v1.01 Andy Ball 04/04/2017 Changed so gets tenantid from current subscription (was using 1st sub before , breaking on multi-tenant scenarios)
  
  .Parameter ApiEndpointUri
  Endpoint URI for Azure Managmeent. Defaults to "https://management.core.windows.net/" and this is unlikely to ever change
@@ -91,10 +91,10 @@ Function Get-CVAzureRESTAuthHeader
     $ErrorActionPreference = "Stop"
      If ([string]::IsNullOrWhiteSpace($AADTenantID))
         {
-            Write-Host "AADTenantID is null, so getting TenantID from first Subscription returned by Get-AzureRMSubscrption"
-            $Subs = Get-AzureRMSubscription 
-            $SubscriptionName = $Subs[0].SubscriptionName
-            $TenantId = $Subs[0].TenantId
+            Write-Host "AADTenantID is null, so getting TenantID from current subscription"
+            $SubContext = Get-AzureRmContext 
+            $SubscriptionName = $SubsContext.Subscription.SubscriptionName
+            $TenantId = $SubContext.Tenant.TenantId
             Write-Host "Using TenantId = $TenantId from SubscriptionName = $SubscriptionName"
             Write-Host ""
             $AADTenantID = $TenantId 

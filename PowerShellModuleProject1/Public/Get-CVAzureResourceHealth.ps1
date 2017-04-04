@@ -9,7 +9,7 @@
   Prequisites
   -----------
   - currently requires Azure Powershell cmdlets
-  - Get-CVAzureRESTAuthHeader cmdlet in this repo : https://github.com/andyjballgit/AndysPowershell/blob/master/PowerShellModuleProject1/Public/Get-CVAzureRESTAuthHeader.ps1
+  - Get-CVAzureRESTAuthHeader cmdlet - if not found will attempt to import module that is found in this repo : https://github.com/andyjballgit/AndysPowershell/blob/master/PowerShellModuleProject1/Public/Get-CVAzureRESTAuthHeader.ps1
 
   Change Log
   ----------
@@ -17,12 +17,12 @@
 
   Issues 
   ------
-  - Major bug , doesnt seem to pull back all VMs 
+  - Major bug , doesnt seem to pull back all VMs with larger subscriptions. Paging / Throttling ? 
 
   Backlog 
   --------
-  -
-  -
+  - VMs , get -Status any value
+  - Show any missing VMs (bug)
 
  .Parameter Mode
  Either All (default), ResourceGroup, Resource
@@ -33,16 +33,20 @@
   
  .Parameter OutputType 
     Raw - just as returned from REST API call 
-    Pretty - with lookups of Resources , formatted as table 
+    Formatted - with lookups of Resources , formatted as table 
 
  .Example
- $ret = Get-CVAzureResourceHealth -Mode All -OutputType Pretty -Verbose
+ this examples show formatted example and also goes on to list any VMs in Subscription not found in list returned from Resource Health API
+ 
+ $ret = Get-CVAzureResourceHealth -Mode All -OutputType Formatted -Verbose
+ $ret 
  $VMs = $ret | where {$_.Resourcetype -eq "Microsoft.Compute/VirtualMachines"} | Select Name, ResourceGroupName | Sort Name 
  $VMs.Count 
 
- .Example
+ $VMSActual = Get-AzureRMVM -Status
+ $vmsactual.Count
+ $MissingVMS = $VMsactual | where {$_.Name -notin $VMs.name}
 
- .Example 
 
 #>
 Function Get-CVAzureResourceHealth
@@ -51,18 +55,33 @@ Function Get-CVAzureResourceHealth
         (
             [Parameter(Mandatory = $false, Position = 0)]  [string] [ValidateSet("All", "ResourceGroup", "Resource")] $Mode = "All",
             [Parameter(Mandatory = $false, Position = 1)] [string] $ItemName,
-            [Parameter(Mandatory = $false, Position = 2)] [string] [ValidateSet("Raw", "Pretty")] $OutputType = "Raw"
+            [Parameter(Mandatory = $false, Position = 2)] [string] [ValidateSet("Raw", "Formatted")] $OutputType = "Raw"
         )
 
     $ErrorActionPreference = "Stop"
 
+    # Validate re have Get-CVAzureRESTHeader
+    $CommandOK = Get-Command "Get-CVAzureRESTAuthHeader"
+    If ($CommandOK -eq $null)
+        {
+            Write-Warning "Cannot find Get-CVAzureRESTAuthHeader func, trying to import ABFunctions"
+            $Module = Get-Module ABFunctions 
+            If ($Module -eq $null)
+                {
+                    Write-Warning
+                    Import-Module $PSScriptRoot\..\ABFunctions
+            
+                }                        
+        }
+
+    # Need ItemName if ResourceGroup or Resource 
     If ($Mode -ne "All" -AND [string]::IsNullOrWhiteSpace($ItemName))
         {
             Write-Warning "Mode Param = $Mode but ItemName param is missing. Quitting..."
             Break
         }
 
-    # Build Header 
+    # Build Auth Header 
     $MyRESTAuth  = Get-CVAzureRESTAuthHeader
     $RESTHeader = @{'Authorization' = $MyRESTAuth }
 
@@ -80,6 +99,7 @@ Function Get-CVAzureResourceHealth
             Write-Host ("Finished all Resources in SubscriptionName = $SubscriptionName @ " + (Get-Date))
     }
 
+    # set specific uri / options here so we can use generic section later
     Switch ($Mode)
     {
         "All"  {
@@ -105,10 +125,11 @@ Function Get-CVAzureResourceHealth
     Write-Host "Calling URI = $Uri" 
     $RESTResult = Invoke-RESTMethod -Method Get -Uri $uri -Headers $RESTHeader
     
-    If ($OutputType -eq "Pretty")
+    # If formatted do look up on Actual Resources
+    If ($OutputType -eq "Formatted")
         {
             $ResultSet = @()
-
+            # roll through all resources returned and do lookup on details
             ForEach ($RAWHealthResource in $RESTResult.value)
                 {
                     $RAWHealthResourceId = $null 
@@ -125,7 +146,7 @@ Function Get-CVAzureResourceHealth
                     If ($Resource -eq $null)
                         {
                             Write-Warning ("Cannot find ResourceId = " + $ActualResourceId)
-
+                       
                         }
                     Else
                         {
@@ -159,4 +180,6 @@ Function Get-CVAzureResourceHealth
             $RESTResult
         }
 }
+
+
 
