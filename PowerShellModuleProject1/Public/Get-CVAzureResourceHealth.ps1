@@ -14,6 +14,7 @@
   Change Log
   ----------
   v1.00 Andy Ball 03/04/2017 Base / Very raw version not much error checking / formatting etc 
+  v1.01 Andy Ball 04/04/2017 
 
   Issues 
   ------
@@ -21,6 +22,7 @@
 
   Backlog 
   --------
+  - Named Resource not supported at present 
   - VMs , get -Status any value
   - Show any missing VMs (bug)
 
