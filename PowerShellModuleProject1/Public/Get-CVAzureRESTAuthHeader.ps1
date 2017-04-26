@@ -35,7 +35,7 @@
  
  .Example
   # Simply returns Subscription details
-  $MyRESTAuth  = Get-LBEAzureRESTAuthHeader
+  $MyRESTAuth  = Get-CVAzureRESTAuthHeader
   # this creates a header for the REST call, sometimes will have extra values , see Example 2
   $RESTHeader = @{'Authorization' = $MyRESTAuth }
   # this is the particular REST method in Azure you want to call , browse https://resources.azure.com for the relevant uris
@@ -50,7 +50,7 @@
     $ErrorActionPreference = "Stop"
 
     #Change these
-    $ResourceGroupName = "LBE-RG-MOVE-001"
+    $ResourceGroupName = "CV-RG-MOVE-001"
     $SubscriptionName = "Non-Live"
     #
     $OutputFile = "c:\temp\$ResourceGroupName.json"
@@ -62,7 +62,7 @@
     $InvokeURI = "https://management.azure.com/api/invoke?_=1"
 
     #initialize Header with the Auth field
-    $Header = @{'Authorization' = (Get-LBEAzureRESTAuthHeader)}
+    $Header = @{'Authorization' = (Get-CVAzureRESTAuthHeader)}
 
     # Now add the other stuff to the Header that is required for this particular call, ie XPath query and Command
     $Header += @{'Accept-Encoding' = 'gzip, deflate' ; 
