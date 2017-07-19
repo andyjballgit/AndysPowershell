@@ -51,9 +51,11 @@
     <Compile Include="Public\Get-MarkDownFileForCmdLets.ps1" />
     <Compile Include="Public\Add-CVAzureVMPIPandNSG.ps1" />
     <Compile Include="Public\Get-CVAzureResourceHealth.ps1" />
+    <Compile Include="Public\Restore-AzureRMSQLDatabaseTestAndDelete.ps1" />
     <Compile Include="Public\Remove-AzureRMVMAndDisks.ps1" />
     <Compile Include="Public\Set-AzureDocsUrisJSON.ps1" />
     <Compile Include="Public\Get-AzureVMBootDiagnosticsScreen.ps1" />
+    <Compile Include="Public\Test-CVVMAcceleratedNetworking.ps1" />
     <Compile Include="Public\Update-CVAzureRMDiskAttached.ps1" />
   </ItemGroup>
   <ItemGroup>
