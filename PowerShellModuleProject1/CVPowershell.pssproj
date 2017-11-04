@@ -55,6 +55,7 @@
     <Compile Include="Public\Remove-AzureRMVMAndDisks.ps1" />
     <Compile Include="Public\Set-AzureDocsUrisJSON.ps1" />
     <Compile Include="Public\Get-AzureVMBootDiagnosticsScreen.ps1" />
+    <Compile Include="Public\Set-CVVMExtensionNetworkWatcher.ps1" />
     <Compile Include="Public\Test-CVVMAcceleratedNetworking.ps1" />
     <Compile Include="Public\Update-CVAzureRMDiskAttached.ps1" />
   </ItemGroup>

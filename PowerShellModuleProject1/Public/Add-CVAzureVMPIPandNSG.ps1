@@ -17,6 +17,7 @@
   V1.02 Andy Ball 27/03/2017 Added ResourceGroup parameter
   v1.03 Andy Ball 10/05/2017 Changed Delete output file to c:\temp\RemovePIPAndNSG_<VMName>.ps1
   v1.04 Andy Ball 13/07/2017 Add Login Prompt / SubscriptionName param / Add regions
+  v1.05 Andy Ball 04/11/2017 Fix Help 
 
   Limitations
   ----------
@@ -37,7 +38,7 @@
  .Parameter ResourceGroupName
  Name of Resource Group where VM Resides
 
- .SubscriptionName 
+ .Parameter SubscriptionName 
  Name of Subscription where VM is hosted. 
 
  .Parameter PIPName
@@ -53,7 +54,7 @@
  By default just allows access / adds to NSG for the callers public ip address , add additional addresses here. 
 
  .Parameter AllowedTCPPortList
- Array of TCP Ports to allow access to VM. Currently will combine this with public facing ip address of the caller.  
+ Array of TCP Ports to allow access to VM. Defaults to 3389 / Currently will combine this with public facing ip address of the caller.  
 
  .Parameter ListVMsIfNotFound
  If true (default) will list out VMs if VMName param is found not to exist
@@ -154,7 +155,7 @@ Function Add-CVAzureVMPIPandNSG
     $VM = $VMs | Where {$_.Name -eq $VMName -AND $_.ResourceGroupName -eq $ResourceGroupName}
     If ($VM -eq $null)
         {
-            Write-Warning "VMName = $VMName in RespurceGroupName = $ResourceGroupName does not exist in Subscription = $CurrentSubscriptionName. Quitting..."
+            Write-Warning "VMName = $VMName in ResourceGroupName = $ResourceGroupName does not exist in Subscription = $CurrentSubscriptionName. Quitting..."
             If($ListVMsIfNotFound)
                 {
                     $VMs | Select Name, ResourceGroupName | Out-String 
